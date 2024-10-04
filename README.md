@@ -1,0 +1,1 @@
+Spring boot application base on a microservice architecture. This project is a simple example of how to create a microservice architecture using Spring Boot and Spring Cloud.
