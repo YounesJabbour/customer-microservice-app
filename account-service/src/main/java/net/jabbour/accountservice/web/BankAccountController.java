@@ -20,9 +20,17 @@ public class BankAccountController {
     private BankAccountRepository bankAccountRepository;
     private CustomerRestClient customerRestClient;
 
+//    public List<BankAccount> getAllAccounts() {
+//            return bankAccountRepository.findAll();
+//    }
+
     @GetMapping("")
-    public List<BankAccount> getAllAccounts() {
-            return bankAccountRepository.findAll();
+    public List<BankAccount> accountList(){
+        List<BankAccount> accountList = bankAccountRepository.findAll();
+        accountList.forEach(acc->{
+            acc.setCustomer(customerRestClient.findCustomerById(acc.getCustomerId()));
+        });
+        return accountList;
     }
 
     @GetMapping("/{id}")
