@@ -1,4 +1,22 @@
 services:
+  mysql_local:
+    image: mysql:latest
+    container_name: mysql_local
+    environment:
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   enset-ebank-discovery-service:
     build: ./discovery-service
     container_name: discovery-service
@@ -20,7 +38,9 @@ services:
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9999/actuator/health" ]
     environment:
-      - DISCOVERY_SERVICE_URL=http://enset-ebank-discovery-service:8761/eureka
+      - DISCOVERY_URL=http://enset-ebank-discovery-service:8761/eureka
+      - GITHUB_REPO_URL=https://github.com/YounesJabbour/bank-account-config-repo
+      - GITHUB_USERNAME=YounesJabbour
     depends_on:
       enset-ebank-discovery-service:
             condition: service_healthy
@@ -32,6 +52,8 @@ services:
     expose:
       - '8081'
     depends_on:
+      mysql_local:
+        condition: service_healthy
       enset-ebank-discovery-service:
             condition: service_healthy
       enset-ebank-config-service:
@@ -39,6 +61,7 @@ services:
     environment:
       - DISCOVERY_SERVICE_URL=http://enset-ebank-discovery-service:8761/eureka
       - CONFIG_SERVICE_URL=http://enset-ebank-config-service:9999/
+      - HOST=mysql_local
 
   enset-account-service:
     build: ./account-service
@@ -48,6 +71,8 @@ services:
     expose:
       - '8082'
     depends_on:
+      mysql_local:
+        condition: service_healthy
       enset-ebank-discovery-service:
             condition: service_healthy
       enset-ebank-config-service:
@@ -55,6 +80,7 @@ services:
     environment:
       - DISCOVERY_SERVICE_URL=http://enset-ebank-discovery-service:8761/eureka
       - CONFIG_SERVICE_URL=http://enset-ebank-config-service:9999/
+      - HOST=mysql_local
 
   enset-gateway-service:
     build: ./gateway-service
@@ -72,6 +98,8 @@ services:
       - DISCOVERY_SERVICE_URL=http://enset-ebank-discovery-service:8761/eureka
       - CONFIG_SERVICE_URL=http://enset-ebank-config-service:9999/
 
+volumes:
+  db_data:
 
 #  angular_frontend:
 #    build: ./angular-front-app
