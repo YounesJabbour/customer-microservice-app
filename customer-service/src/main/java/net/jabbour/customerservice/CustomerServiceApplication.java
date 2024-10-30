@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @EnableConfigurationProperties (GlobalConfig.class)
@@ -22,10 +23,16 @@ public class CustomerServiceApplication {
     @Bean
     CommandLineRunner commandLineRunner(CustomerRepository customerRepository) {
         return args -> {
-            List<Customer> customers = List.of(
-                    Customer.builder().firstName("younes").lastName("jabbour").email("jb@gmail.com").build(),
-                    Customer.builder().firstName("youssef").lastName("jabar").email("ys@gmail.com").build()
-            );
+
+            List<Customer> customers = new ArrayList<>();
+
+            for (int i = 1; i <= 20; i++) {
+            customers.add(Customer.builder()
+            .firstName("firstName" + i)
+            .lastName("lastName" + i)
+            .email("email" + i + "@gmail.com")
+            .build());
+            }
             customerRepository.saveAll(customers);
         };
     }

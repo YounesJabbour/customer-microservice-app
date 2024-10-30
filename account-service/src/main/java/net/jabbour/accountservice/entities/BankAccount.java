@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Entity
+
 public class BankAccount {
     @Id
     private String accountId;
@@ -21,6 +22,7 @@ public class BankAccount {
     private String currency;
     @Enumerated(EnumType.STRING)
     private AccountType type;
+    @Enumerated(EnumType.STRING)
     private Status status;
     private LocalDate createdAt;
     private LocalDate updatedAt;

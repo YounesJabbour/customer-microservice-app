@@ -2,6 +2,7 @@ package net.jabbour.accountservice;
 
 import net.jabbour.accountservice.entities.BankAccount;
 import net.jabbour.accountservice.enums.AccountType;
+import net.jabbour.accountservice.enums.Status;
 import net.jabbour.accountservice.repository.BankAccountRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 
 import javax.xml.crypto.Data;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,20 +27,20 @@ public class AccountServiceApplication {
 	@Bean
 	CommandLineRunner commandLineRunner(BankAccountRepository bankAccountRepository) {
 		return args -> {
-				List<BankAccount> bankAccounts = List.of(
-						BankAccount.builder().accountId(UUID.randomUUID().toString()).type(AccountType.CURRENT_ACCOUNT)
-								.balance(100.0)
-								.currency("MAD")
-								.createdAt(LocalDate.now())
-								.customerId(1L).build(),
-						// second account
-						BankAccount.builder().accountId(UUID.randomUUID().toString()).type(AccountType.SAVING_ACCOUNT)
-								.balance(200.0)
-								.currency("EURO")
-								.createdAt(LocalDate.now())
-								.customerId(2L).build()
-				);
-				bankAccountRepository.saveAll(bankAccounts);
+			List<BankAccount> bankAccounts = new ArrayList<>();
+			for (int i = 1; i <= 20; i++) {
+				BankAccount bankAccount = BankAccount.builder()
+						.accountId(UUID.randomUUID().toString())
+						.type(i % 2 == 0 ? AccountType.CURRENT_ACCOUNT : AccountType.SAVING_ACCOUNT)
+						.balance(Math.random() * 1000)
+						.currency(i % 2 == 0 ? "MAD" : "EURO")
+						.status(Status.values()[(int) (Math.random() * Status.values().length)])
+						.createdAt(LocalDate.now())
+						.customerId((long) i)
+						.build();
+				bankAccounts.add(bankAccount);
+			}
+			bankAccountRepository.saveAll(bankAccounts);
 		};
-	}
+	};
 }
